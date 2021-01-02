@@ -1,16 +1,12 @@
 import config
 
-import fcntl
-import sys
-import os
-import time
-import tty
-import termios
-
 import json
+import time
 import asyncio
 import datetime
 import requests
+
+from threading import Thread
 
 from minecraft import authentication
 from minecraft.exceptions import YggdrasilError
@@ -75,17 +71,10 @@ def parse_snitch(chat):
         coords = [int(i) for i in split_chat[3][3:][:-1].split(" ")]
         text = "**" + account + "** " + action + " at **" + snitch_name + "** `" + str(coords) + "`"
         print(dtstring(), text)
-        requests.post(config.snitch_hook, data={"content": text})
+        if config.snitch_hook is not None:
+            requests.post(config.snitch_hook, data={"content": text})
     except Exception as e:
         print(dtstring(), "snitch error", type(e), e)
-
-
-def authenticate():
-    try:
-        auth_token.authenticate(config.username, config.password)
-    except YggdrasilError as e:
-        print(e.message)
-    print(dtstring(), "yggdrassil authenticated...")
 
 
 def handle_error(exc):
@@ -102,6 +91,14 @@ def send_chat(message):
     packet = packets.serverbound.play.ChatPacket()
     packet.message = message
     connection.write_packet(packet)
+
+
+def parse_commands():
+    while True:
+        i = input()
+        cmd = i.split(" ")[0]
+        args = i.split(" ")[1:]
+        exec(i)
 
 
 auth_token = authentication.AuthenticationToken()
@@ -139,7 +136,15 @@ if __name__ == "__main__":
     print(dtstring(), "starting up")
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
+    cmdThread = Thread(parse_commands())
+    cmdThread.run()
     connection.connect()
     while True:
-        c = input()
-        print(c)
+        time.sleep(120)
+        print(connection.connected, connection.spawned, type(connection.reactor))
+        if not connection.connected:
+            connection.auth_token.authenticate(config.username, config.password)
+            connection.connect()
+        elif time.time() - a > 43200:
+            a = time.time()
+            connection.disconnect(True)
