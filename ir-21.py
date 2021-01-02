@@ -136,8 +136,8 @@ if __name__ == "__main__":
     print(dtstring(), "starting up")
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
-    cmdThread = Thread(parse_commands())
-    cmdThread.run()
+    #cmdThread = Thread(parse_commands())
+    #cmdThread.run()
     connection.connect()
     while True:
         time.sleep(120)
