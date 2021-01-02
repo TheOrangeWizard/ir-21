@@ -13,17 +13,17 @@ from minecraft.networking import packets
 
 
 def timestring():
-    mtime = datetime.datetime.now()
+    mtime = datetime.datetime.utcnow()
     return "[{:%H:%M:%S}]".format(mtime)
 
 
 def datestring():
-    mtime = datetime.datetime.now()
+    mtime = datetime.datetime.utcnow()
     return "[{:%d/%m/%y}]".format(mtime)
 
 
 def dtstring():
-    mtime = datetime.datetime.now()
+    mtime = datetime.datetime.utcnow()
     return "[{:%d/%m/%y] [%H:%M:%S}]".format(mtime)
 
 
@@ -68,7 +68,7 @@ def parse_snitch(chat):
         direction = str(split_chat[4].split(" ")[1][1:][:-2])
         coords = [int(i) for i in split_chat[3][3:][:-1].split(" ")]
         text = "**" + account + "** " + action + " at **" + snitch_name + "** `" + str(coords) + "`"
-        print(text)
+        print(dtstring(), text)
         requests.post(config.snitch_hook, data={"content": text})
     except Exception as e:
         print(dtstring(), "snitch error", type(e), e)
@@ -130,9 +130,9 @@ def on_player_list_item(player_list_item_packet):
 
 
 if __name__ == "__main__":
-    print(timestring(), "starting up")
+    print(dtstring(), "starting up")
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
     while True:
-        time.sleep(1)
+        i = input(">")
