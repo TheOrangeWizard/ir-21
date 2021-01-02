@@ -136,19 +136,6 @@ if __name__ == "__main__":
     print(dtstring(), "starting up")
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
-    #cmdThread = Thread(parse_commands())
-    #cmdThread.run()
     connection.connect()
-    while True:
-        time.sleep(0.1)
-        if time.time() - a > 600:
-            a = time.time()
-            print(connection.connected, connection.spawned, type(connection.reactor))
-        if time.time() - a > 120:
-            a = time.time()
-            if not connection.connected:
-                connection.auth_token.authenticate(config.username, config.password)
-                connection.connect()
-        elif time.time() - a > 43200:
-            a = time.time()
-            connection.disconnect(True)
+    cmdThread = Thread(parse_commands())
+    cmdThread.run()
