@@ -141,4 +141,5 @@ if __name__ == "__main__":
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
     while True:
-        time.sleep(60)
+        c = input()
+        print(c)
