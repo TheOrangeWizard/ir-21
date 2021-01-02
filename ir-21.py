@@ -2,6 +2,7 @@ import config
 
 import json
 import time
+import asyncio
 import datetime
 import requests
 
@@ -133,3 +134,5 @@ if __name__ == "__main__":
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
+    while True:
+        time.sleep(1)
