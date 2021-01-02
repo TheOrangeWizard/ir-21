@@ -98,7 +98,10 @@ def parse_commands():
         i = input()
         cmd = i.split(" ")[0]
         args = i.split(" ")[1:]
-        exec(i)
+        try:
+            exec(i)
+        except Exception as e:
+            print(str(type(e)) + ": " + str(e))
 
 
 auth_token = authentication.AuthenticationToken()
@@ -121,7 +124,7 @@ def on_chat(chat_packet):
         if chat[:2] == "§6":
             parse_snitch(chat)
         else:
-            print(dtstring(), source, chat)
+            print(dtstring(), source, chat, flush=True)
 
 
 @connection.listener(packets.clientbound.play.PlayerListItemPacket)
