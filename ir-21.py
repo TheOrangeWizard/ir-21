@@ -77,6 +77,14 @@ def parse_snitch(chat):
         print(dtstring(), "snitch error", type(e), e)
 
 
+def handle_exit():
+    print(dtstring(), "disconnected from", connection.host)
+    print(dtstring(), "reconnecting in 60 seconds")
+    time.sleep(60)
+    print(dtstring(), "reconnecting...")
+    connection.connect()
+
+
 def handle_error(exc):
     print(exc)
     if not connection.connected:
@@ -93,19 +101,48 @@ def send_chat(message):
     connection.write_packet(packet)
 
 
+commands = {}
+auth_token = authentication.AuthenticationToken()
+connection = Connection(config.host, config.port,
+                        auth_token=auth_token,
+                        handle_exception=handle_error,
+                        handle_exit=handle_exit)
+
+
+def command(cmd):
+    commands[cmd.__name__] = cmd
+
+
 def parse_commands():
     while True:
         i = input()
         cmd = i.split(" ")[0]
-        args = i.split(" ")[1:]
+        txt = " ".join(i.split(" ")[1:])
         try:
-            exec(i)
+            commands[cmd](txt)
         except Exception as e:
             print(str(type(e)) + ": " + str(e))
 
 
-auth_token = authentication.AuthenticationToken()
-connection = Connection(config.host, config.port, auth_token=auth_token, handle_exception=handle_error)
+@command
+def run(txt):
+    try:
+        exec(txt)
+    except Exception as e:
+        print(str(type(e)) + ": " + str(e))
+
+
+@command
+def say(txt):
+    try:
+        send_chat(txt)
+    except Exception as e:
+        print(str(type(e)) + ": " + str(e))
+
+
+@command
+def login(txt):
+    connection.connect()
 
 
 @connection.listener(packets.clientbound.play.JoinGamePacket)
@@ -141,4 +178,4 @@ if __name__ == "__main__":
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
     cmdThread = Thread(parse_commands())
-    cmdThread.run()
+    cmdThread.start()
