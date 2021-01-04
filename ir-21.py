@@ -114,12 +114,14 @@ def background():
         time.sleep(0.1)
         if time.time() - a > 60:
             print(dtstring(), connection.connected, type(connection.reactor))
+            a = time.time()
         if time.time() - a > 120:
             if not connection.connected:
                 print(dtstring(), "disconnected from", connection.host)
                 print(dtstring(), "reconnecting...")
                 connection.auth_token.authenticate(config.username, config.password)
                 connection.connect()
+            a = time.time()
 
 
 @connection.listener(packets.clientbound.play.JoinGamePacket)
