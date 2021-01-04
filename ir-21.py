@@ -101,7 +101,6 @@ def send_chat(message):
     connection.write_packet(packet)
 
 
-commands = {}
 auth_token = authentication.AuthenticationToken()
 connection = Connection(config.host, config.port,
                         auth_token=auth_token,
@@ -109,40 +108,18 @@ connection = Connection(config.host, config.port,
                         handle_exit=handle_exit)
 
 
-def command(cmd):
-    commands[cmd.__name__] = cmd
-
-
-def parse_commands():
+def background():
+    a = time.time()
     while True:
-        i = input()
-        cmd = i.split(" ")[0]
-        txt = " ".join(i.split(" ")[1:])
-        try:
-            commands[cmd](txt)
-        except Exception as e:
-            print(str(type(e)) + ": " + str(e))
-
-
-@command
-def run(txt):
-    try:
-        exec(txt)
-    except Exception as e:
-        print(str(type(e)) + ": " + str(e))
-
-
-@command
-def say(txt):
-    try:
-        send_chat(txt)
-    except Exception as e:
-        print(str(type(e)) + ": " + str(e))
-
-
-@command
-def login(txt):
-    connection.connect()
+        time.sleep(0.1)
+        if time.time() - a > 60:
+            print(dtstring(), connection.connected, type(connection.reactor))
+        if time.time() - a > 120:
+            if not connection.connected:
+                print(dtstring(), "disconnected from", connection.host)
+                print(dtstring(), "reconnecting...")
+                connection.auth_token.authenticate(config.username, config.password)
+                connection.connect()
 
 
 @connection.listener(packets.clientbound.play.JoinGamePacket)
@@ -177,5 +154,5 @@ if __name__ == "__main__":
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
-    cmdThread = Thread(parse_commands())
-    cmdThread.start()
+    backgroundThread = Thread(background())
+    backgroundThread.start()
