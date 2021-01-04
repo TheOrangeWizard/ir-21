@@ -221,5 +221,5 @@ if __name__ == "__main__":
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
     #trio.run(background)
-    #commandThread = threading.Thread(parse_commands())
-    #commandThread.start()
+    commandThread = threading.Thread(parse_commands())
+    commandThread.start()
