@@ -1,4 +1,5 @@
 import config
+import commands
 
 import json
 import time
@@ -101,16 +102,11 @@ def send_chat(message):
     connection.write_packet(packet)
 
 
-commands = {}
 auth_token = authentication.AuthenticationToken()
 connection = Connection(config.host, config.port,
                         auth_token=auth_token,
                         handle_exception=handle_error,
                         handle_exit=handle_exit)
-
-
-def command(cmd):
-    commands[cmd.__name__] = cmd
 
 
 def parse_commands():
@@ -119,30 +115,9 @@ def parse_commands():
         cmd = i.split(" ")[0]
         txt = " ".join(i.split(" ")[1:])
         try:
-            commands[cmd](txt)
+            commands.commands[cmd](txt)
         except Exception as e:
             print(str(type(e)) + ": " + str(e))
-
-
-@command
-def run(txt):
-    try:
-        exec(txt)
-    except Exception as e:
-        print(str(type(e)) + ": " + str(e))
-
-
-@command
-def say(txt):
-    try:
-        send_chat(txt)
-    except Exception as e:
-        print(str(type(e)) + ": " + str(e))
-
-
-@command
-def login(txt):
-    connection.connect()
 
 
 def background():
