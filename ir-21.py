@@ -1,12 +1,11 @@
 import config
 
+import trio
 import json
 import time
 import asyncio
 import datetime
 import requests
-
-from threading import Thread
 
 from minecraft import authentication
 from minecraft.exceptions import YggdrasilError
@@ -108,7 +107,24 @@ connection = Connection(config.host, config.port,
                         handle_exit=handle_exit)
 
 
-def parse_commands():
+async def background():
+    print(dtstring(), "background thread started")
+    a = time.time()
+    while True:
+        await trio.sleep(0.1)
+        if time.time() - a > 600:
+            print(dtstring(), connection.connected, type(connection.reactor))
+            a = time.time()
+        if time.time() - a > 120:
+            if not connection.connected:
+                print(dtstring(), "disconnected from", connection.host)
+                print(dtstring(), "reconnecting...")
+                connection.auth_token.authenticate(config.username, config.password)
+                connection.connect()
+            a = time.time()
+
+
+async def parse_commands():
     print(dtstring(), "command thread started")
     while True:
         i = input()
@@ -171,23 +187,6 @@ def exit(txt):
     raise SystemExit
 
 
-def background():
-    print(dtstring(), "background thread started")
-    a = time.time()
-    while True:
-        time.sleep(0.1)
-        if time.time() - a > 600:
-            print(dtstring(), connection.connected, type(connection.reactor))
-            a = time.time()
-        if time.time() - a > 120:
-            if not connection.connected:
-                print(dtstring(), "disconnected from", connection.host)
-                print(dtstring(), "reconnecting...")
-                connection.auth_token.authenticate(config.username, config.password)
-                connection.connect()
-            a = time.time()
-
-
 @connection.listener(packets.clientbound.play.JoinGamePacket)
 def on_join_game(join_game_packet):
     print(dtstring(), "connected to", connection.address, "as", auth_token.profile.name)
@@ -220,7 +219,5 @@ if __name__ == "__main__":
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
-    commandThread = Thread(parse_commands())
-    backgroundThread = Thread(background())
-    commandThread.start()
-    backgroundThread.start()
+    trio.run(parse_commands)
+    trio.run(background)
