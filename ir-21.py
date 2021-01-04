@@ -1,9 +1,7 @@
 import config
 
-import trio
 import json
 import time
-import asyncio
 import datetime
 import requests
 import threading
@@ -112,7 +110,7 @@ def background():
     print(dtstring(), "background thread started")
     a = time.time()
     while True:
-        await trio.sleep(0.1)
+        time.sleep(1)
         if time.time() - a > 600:
             print(dtstring(), connection.connected, type(connection.reactor))
             a = time.time()
