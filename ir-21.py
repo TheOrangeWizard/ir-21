@@ -1,6 +1,10 @@
 import config
 import commands
 
+from commands import timestring
+from commands import datestring
+from commands import dtstring
+
 import json
 import time
 import asyncio
@@ -13,21 +17,6 @@ from minecraft import authentication
 from minecraft.exceptions import YggdrasilError
 from minecraft.networking.connection import Connection
 from minecraft.networking import packets
-
-
-def timestring():
-    mtime = datetime.datetime.utcnow()
-    return "[{:%H:%M:%S}]".format(mtime)
-
-
-def datestring():
-    mtime = datetime.datetime.utcnow()
-    return "[{:%d/%m/%y}]".format(mtime)
-
-
-def dtstring():
-    mtime = datetime.datetime.utcnow()
-    return "[{:%d/%m/%y] [%H:%M:%S}]".format(mtime)
 
 
 def parse(obj):

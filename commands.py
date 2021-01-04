@@ -1,6 +1,21 @@
 commands = {}
 
 
+def timestring():
+    mtime = datetime.datetime.utcnow()
+    return "[{:%H:%M:%S}]".format(mtime)
+
+
+def datestring():
+    mtime = datetime.datetime.utcnow()
+    return "[{:%d/%m/%y}]".format(mtime)
+
+
+def dtstring():
+    mtime = datetime.datetime.utcnow()
+    return datestring() + " " + timestring()
+
+
 def command(cmd):
     commands[cmd.__name__] = cmd
 
