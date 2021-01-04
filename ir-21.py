@@ -6,6 +6,7 @@ import time
 import asyncio
 import datetime
 import requests
+import threading
 
 from minecraft import authentication
 from minecraft.exceptions import YggdrasilError
@@ -124,7 +125,7 @@ async def background():
             a = time.time()
 
 
-async def parse_commands():
+def parse_commands():
     print(dtstring(), "command thread started")
     while True:
         i = input()
@@ -219,5 +220,6 @@ if __name__ == "__main__":
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
-    trio.run(parse_commands)
     trio.run(background)
+    commandThread = threading.Thread(parse_commands())
+    commandThread.start()
