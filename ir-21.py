@@ -2,6 +2,7 @@ import config
 
 import json
 import time
+import urwid
 import datetime
 import requests
 import threading
@@ -10,6 +11,18 @@ from minecraft import authentication
 from minecraft.exceptions import YggdrasilError
 from minecraft.networking.connection import Connection
 from minecraft.networking import packets
+
+
+output_widget = urwid.Text("ir-21")
+input_widget = urwid.Edit("~> ")
+frame_widget = urwid.Frame(footer=input_widget, body=urwid.Filler(output_widget, valign='top'), focus_part='footer')
+
+
+def print(*args):
+    date = datetime.datetime.utcnow()
+    with open("log-{:%d-%m-%y}".format(date), "a") as log:
+        log.write(" ".join(args) + "\n")
+    output_widget.set_text(output_widget.text + " ".join(args) + "\n")
 
 
 def timestring():
@@ -123,10 +136,9 @@ def background():
             a = time.time()
 
 
-def parse_commands():
-    print(dtstring(), "command thread started")
-    while True:
-        i = input()
+def parse_commands(key):
+    if key == "enter":
+        i = input_widget.edit_text
         cmd = i.split(" ")[0]
         txt = " ".join(i.split(" ")[1:])
         try:
@@ -202,7 +214,7 @@ def on_chat(chat_packet):
         if chat[:2] == "§6":
             parse_snitch(chat)
         else:
-            print(dtstring(), source, chat, flush=True)
+            print(dtstring(), source, chat)
 
 
 @connection.listener(packets.clientbound.play.PlayerListItemPacket)
@@ -218,8 +230,7 @@ if __name__ == "__main__":
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
-    backgroundThread = threading.Thread(background())
-    commandThread = threading.Thread(parse_commands())
-    backgroundThread.start()
-    #commandThread.start()
-    print("eof")
+    #backgroundThread = threading.Thread(background())
+    #backgroundThread.start()
+    loop = urwid.MainLoop(frame_widget, unhandled_input=parse_commands)
+    loop.run()
