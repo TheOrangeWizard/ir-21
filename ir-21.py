@@ -101,6 +101,7 @@ def send_chat(message):
     connection.write_packet(packet)
 
 
+commands = {}
 auth_token = authentication.AuthenticationToken()
 connection = Connection(config.host, config.port,
                         auth_token=auth_token,
@@ -108,11 +109,47 @@ connection = Connection(config.host, config.port,
                         handle_exit=handle_exit)
 
 
+def command(cmd):
+    commands[cmd.__name__] = cmd
+
+
+def parse_commands():
+    while True:
+        i = input()
+        cmd = i.split(" ")[0]
+        txt = " ".join(i.split(" ")[1:])
+        try:
+            commands[cmd](txt)
+        except Exception as e:
+            print(str(type(e)) + ": " + str(e))
+
+
+@command
+def run(txt):
+    try:
+        exec(txt)
+    except Exception as e:
+        print(str(type(e)) + ": " + str(e))
+
+
+@command
+def say(txt):
+    try:
+        send_chat(txt)
+    except Exception as e:
+        print(str(type(e)) + ": " + str(e))
+
+
+@command
+def login(txt):
+    connection.connect()
+
+
 def background():
     a = time.time()
     while True:
         time.sleep(0.1)
-        if time.time() - a > 60:
+        if time.time() - a > 600:
             print(dtstring(), connection.connected, type(connection.reactor))
             a = time.time()
         if time.time() - a > 120:
@@ -156,5 +193,7 @@ if __name__ == "__main__":
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
+    commandThread = Thread(parse_commands())
+    commandThread.start()
     backgroundThread = Thread(background())
     backgroundThread.start()
