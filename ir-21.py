@@ -114,7 +114,7 @@ def parse_commands():
         cmd = i.split(" ")[0]
         txt = " ".join(i.split(" ")[1:])
         try:
-            commands.commands[cmd](txt)
+            commands[cmd](txt)
         except Exception as e:
             print(str(type(e)) + ": " + str(e))
 
