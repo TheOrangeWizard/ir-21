@@ -108,7 +108,7 @@ connection = Connection(config.host, config.port,
                         handle_exit=handle_exit)
 
 
-async def background():
+def background():
     print(dtstring(), "background thread started")
     a = time.time()
     while True:
@@ -220,6 +220,8 @@ if __name__ == "__main__":
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
-    trio.run(background)
-    #commandThread = threading.Thread(parse_commands())
+    backgroundThread = threading.Thread(background())
+    commandThread = threading.Thread(parse_commands())
+    backgroundThread.start()
     #commandThread.start()
+    print("eof")
