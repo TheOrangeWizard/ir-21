@@ -109,6 +109,7 @@ connection = Connection(config.host, config.port,
 
 
 def parse_commands():
+    print(dtstring(), "command thread started")
     while True:
         i = input()
         cmd = i.split(" ")[0]
@@ -146,7 +147,7 @@ def say(txt):
 def status(txt):
     print(dtstring(), "ir-21 status:")
     print("account name:", connection.auth_token.profile.name)
-    print("server address:", connection.host, connection.port)
+    print("server address:", connection.address, connection.port)
     print("connection active:", connection.connected)
     print("spawned:", connection.spawned)
     print("reactor type:", type(connection.reactor))
@@ -165,7 +166,13 @@ def logout(txt):
         send_chat("/logout")
 
 
+@command
+def exit(txt):
+    raise SystemExit
+
+
 def background():
+    print(dtstring(), "background thread started")
     a = time.time()
     while True:
         time.sleep(0.1)
@@ -183,7 +190,7 @@ def background():
 
 @connection.listener(packets.clientbound.play.JoinGamePacket)
 def on_join_game(join_game_packet):
-    print(dtstring(), "connected to", config.host, "as", auth_token.profile.name)
+    print(dtstring(), "connected to", connection.address, "as", auth_token.profile.name)
     connection.__setattr__("player_list", packets.clientbound.play.PlayerListItemPacket.PlayerList())
 
 
@@ -214,6 +221,6 @@ if __name__ == "__main__":
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
     commandThread = Thread(parse_commands())
-    commandThread.start()
     backgroundThread = Thread(background())
+    commandThread.start()
     backgroundThread.start()
