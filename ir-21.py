@@ -108,7 +108,7 @@ def check_online():
         print(dtstring(), "reconnecting...")
         connection.auth_token.authenticate(config.username, config.password)
         connection.connect()
-    loop.alarm(300, check_online)
+    loop.alarm(150, check_online)
 
 
 def parse_commands(key):
@@ -207,5 +207,5 @@ if __name__ == "__main__":
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
     loop = urwid.AsyncioEventLoop(frame_widget, unhandled_input=parse_commands)
-    loop.alarm(300, check_online)
+    loop.alarm(150, check_online)
     loop.run()
