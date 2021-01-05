@@ -205,10 +205,10 @@ def on_player_list_item(player_list_item_packet):
 
 
 if __name__ == "__main__":
+    loop = urwid.AsyncioEventLoop(frame_widget, unhandled_input=parse_commands)
     print(dtstring(), "starting up")
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
-    loop = urwid.AsyncioEventLoop(frame_widget, unhandled_input=parse_commands)
     loop.alarm(150, check_online)
     loop.run()
