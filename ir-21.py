@@ -26,7 +26,7 @@ def print(*args):
     output_widget.set_text(output_widget.text + text)
     cols, rows = loop.screen.get_cols_rows()
     if output_widget.rows((cols,)) > rows:
-        output_widget.set_text("\n".join(output_widget.text.split("\n")[1:]) + "\n")
+        output_widget.set_text("\n".join(output_widget.text.split("\n")[1:]))
     try:
         loop.draw_screen()
     except AssertionError:
