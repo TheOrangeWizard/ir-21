@@ -111,7 +111,7 @@ def check_online():
         print(dtstring(), "reconnecting...")
         connection.auth_token.authenticate(config.username, config.password)
         connection.connect()
-    loop.alarm(150, check_online)
+    loop.set_alarm(150, check_online)
 
 
 def parse_commands(key):
@@ -210,5 +210,5 @@ if __name__ == "__main__":
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
-    loop.alarm(150, check_online)
+    loop.set_alarm(150, check_online)
     loop.run()
