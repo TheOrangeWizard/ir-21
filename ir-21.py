@@ -169,6 +169,18 @@ def status(txt):
 
 
 @command
+def players(txt):
+    content = []
+    n = "0"
+    for uuid in connection.player_list.players_by_uuid.keys():
+        name = str(connection.player_list.players_by_uuid[uuid].name)
+        content.append(name)
+    n = str(len(content))
+    print(dtstring(), n, "players online:")
+    print("\n".join(sorted(content, key=str.casefold)))
+
+
+@command
 def login(txt):
     connection.connect()
 
