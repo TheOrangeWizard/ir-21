@@ -26,7 +26,11 @@ def print(*args):
     cols, rows = loop.screen.get_cols_rows()
     if output_widget.rows((cols,)) > rows:
         output_widget.set_text("\n".join(output_widget.text.split("\n")[1:]) + "\n")
-    loop.draw_screen()
+    try:
+        loop.draw_screen()
+    except AssertionError:
+        pass
+
 
 
 def timestring():
