@@ -23,6 +23,7 @@ def print(*args):
     with open("log-{:%d-%m-%y}.txt".format(date), "a") as log:
         log.write(" ".join(args) + "\n")
     output_widget.set_text(output_widget.text + " ".join(args) + "\n")
+    loop.screen.flush()
 
 
 def timestring():
@@ -100,26 +101,20 @@ auth_token = authentication.AuthenticationToken()
 connection = Connection(config.host, config.port, auth_token=auth_token)
 
 
-def background():
-    print(dtstring(), "background thread started")
-    a = time.time()
-    while True:
-        time.sleep(1)
-        if time.time() - a > 600:
-            print(dtstring(), connection.connected, type(connection.reactor))
-            a = time.time()
-        if time.time() - a > 120:
-            if not connection.connected:
-                print(dtstring(), "disconnected from", connection.host)
-                print(dtstring(), "reconnecting...")
-                connection.auth_token.authenticate(config.username, config.password)
-                connection.connect()
-            a = time.time()
+def check_online():
+    print(dtstring(), "check online event")
+    if not connection.connected:
+        print(dtstring(), "disconnected from", connection.host)
+        print(dtstring(), "reconnecting...")
+        connection.auth_token.authenticate(config.username, config.password)
+        connection.connect()
+    loop.alarm(300, check_online)
 
 
 def parse_commands(key):
     if key == "enter":
         i = input_widget.edit_text
+        input_widget.edit_text = ""
         cmd = i.split(" ")[0]
         txt = " ".join(i.split(" ")[1:])
         try:
@@ -211,5 +206,6 @@ if __name__ == "__main__":
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
-    loop = urwid.MainLoop(frame_widget, unhandled_input=parse_commands)
+    loop = urwid.AsyncioEventLoop(frame_widget, unhandled_input=parse_commands)
+    loop.alarm(300, check_online)
     loop.run()
