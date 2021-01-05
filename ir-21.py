@@ -106,16 +106,21 @@ def send_chat(message):
 
 auth_token = authentication.AuthenticationToken()
 connection = Connection(config.host, config.port, auth_token=auth_token)
+reconnect_delay = 0
 
 
 def check_online(loop, data):
-    print(dtstring(), "check online event")
+    global reconnect_delay
+    #print(dtstring(), "check online event")
     if not connection.connected:
-        print(dtstring(), "disconnected from", connection.host)
+        print(dtstring(), "disconnected from", connection.options.address)
         print(dtstring(), "reconnecting...")
         connection.auth_token.authenticate(config.username, config.password)
         connection.connect()
-    loop.set_alarm_in(150, check_online)
+        reconnect_delay += 15
+    else:
+        reconnect_delay = 0
+    loop.set_alarm_in(60 + reconnect_delay, check_online)
 
 
 def parse_commands(key):
@@ -214,5 +219,5 @@ if __name__ == "__main__":
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
     connection.connect()
-    loop.set_alarm_in(150, check_online)
+    loop.set_alarm_in(60, check_online)
     loop.run()
