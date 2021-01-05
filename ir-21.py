@@ -20,7 +20,7 @@ frame_widget = urwid.Frame(footer=input_widget, body=urwid.Filler(output_widget,
 
 def print(*args):
     date = datetime.datetime.utcnow()
-    with open("log-{:%d-%m-%y}".format(date), "a") as log:
+    with open("log-{:%d-%m-%y}.txt".format(date), "a") as log:
         log.write(" ".join(args) + "\n")
     output_widget.set_text(output_widget.text + " ".join(args) + "\n")
 
@@ -88,22 +88,6 @@ def parse_snitch(chat):
         print(dtstring(), "snitch error", type(e), e)
 
 
-def handle_exit():
-    print(dtstring(), "disconnected from", connection.host)
-    print(dtstring(), "reconnecting in 60 seconds")
-    time.sleep(60)
-    print(dtstring(), "reconnecting...")
-    connection.connect()
-
-
-def handle_error(exc):
-    print(exc)
-    if not connection.connected:
-        print(dtstring(), "connection lost")
-    else:
-        print(dtstring(), "connection not lost")
-
-
 def send_chat(message):
     sm = message.split(" ")
     print(dtstring(), "sending:", message)
@@ -113,10 +97,7 @@ def send_chat(message):
 
 
 auth_token = authentication.AuthenticationToken()
-connection = Connection(config.host, config.port,
-                        auth_token=auth_token,
-                        handle_exception=handle_error,
-                        handle_exit=handle_exit)
+connection = Connection(config.host, config.port, auth_token=auth_token)
 
 
 def background():
@@ -174,7 +155,7 @@ def say(txt):
 def status(txt):
     print(dtstring(), "ir-21 status:")
     print("account name:", connection.auth_token.profile.name)
-    print("server address:", connection.address, connection.port)
+    print("server address:", connection.options.address, connection.options.port)
     print("connection active:", connection.connected)
     print("spawned:", connection.spawned)
     print("reactor type:", type(connection.reactor))
@@ -200,7 +181,7 @@ def exit(txt):
 
 @connection.listener(packets.clientbound.play.JoinGamePacket)
 def on_join_game(join_game_packet):
-    print(dtstring(), "connected to", connection.address, "as", auth_token.profile.name)
+    print(dtstring(), "connected to", connection.options.address, "as", auth_token.profile.name)
     connection.__setattr__("player_list", packets.clientbound.play.PlayerListItemPacket.PlayerList())
 
 
@@ -229,9 +210,6 @@ if __name__ == "__main__":
     print(dtstring(), "starting up")
     a = time.time()
     connection.auth_token.authenticate(config.username, config.password)
-    connectionThread = threading.Thread(connection.connect())
-    connectionThread.start()
-    #backgroundThread = threading.Thread(background())
-    #backgroundThread.start()
+    connection.connect()
     loop = urwid.MainLoop(frame_widget, unhandled_input=parse_commands)
     loop.run()
