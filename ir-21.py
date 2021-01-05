@@ -20,9 +20,10 @@ frame_widget = urwid.Frame(footer=input_widget, body=urwid.Filler(output_widget,
 
 def print(*args):
     date = datetime.datetime.utcnow()
+    text = " ".join([str(arg) for arg in args]) + "\n"
     with open("log-{:%d-%m-%y}.txt".format(date), "a") as log:
-        log.write(" ".join(args) + "\n")
-    output_widget.set_text(output_widget.text + " ".join(args) + "\n")
+        log.write(text)
+    output_widget.set_text(output_widget.text + text)
     cols, rows = loop.screen.get_cols_rows()
     if output_widget.rows((cols,)) > rows:
         output_widget.set_text("\n".join(output_widget.text.split("\n")[1:]) + "\n")
@@ -30,7 +31,6 @@ def print(*args):
         loop.draw_screen()
     except AssertionError:
         pass
-
 
 
 def timestring():
