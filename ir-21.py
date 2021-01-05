@@ -24,7 +24,7 @@ def print(*args):
         log.write(" ".join(args) + "\n")
     output_widget.set_text(output_widget.text + " ".join(args) + "\n")
     cols, rows = loop.screen.get_cols_rows()
-    if output_widget.rows() > rows:
+    if output_widget.rows(cols) > rows:
         output_widget.set_text("\n".join(output_widget.text.split("\n")[1:]) + "\n")
     loop.screen.flush()
 
