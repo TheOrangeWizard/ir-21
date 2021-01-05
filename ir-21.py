@@ -13,7 +13,7 @@ from minecraft.networking.connection import Connection
 from minecraft.networking import packets
 
 
-output_widget = urwid.Text("ir-21")
+output_widget = urwid.Text("ir-21\n")
 input_widget = urwid.Edit("~> ")
 frame_widget = urwid.Frame(footer=input_widget, body=urwid.Filler(output_widget, valign='top'), focus_part='footer')
 
@@ -26,7 +26,7 @@ def print(*args):
     cols, rows = loop.screen.get_cols_rows()
     if output_widget.rows((cols,)) > rows:
         output_widget.set_text("\n".join(output_widget.text.split("\n")[1:]) + "\n")
-    loop.screen.flush()
+    loop.draw_screen()
 
 
 def timestring():
@@ -104,7 +104,7 @@ auth_token = authentication.AuthenticationToken()
 connection = Connection(config.host, config.port, auth_token=auth_token)
 
 
-def check_online():
+def check_online(loop, data):
     print(dtstring(), "check online event")
     if not connection.connected:
         print(dtstring(), "disconnected from", connection.host)
