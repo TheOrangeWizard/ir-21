@@ -13,16 +13,20 @@ from minecraft.networking.connection import Connection
 from minecraft.networking import packets
 
 
+output_lines = []
+output_pos = 0
 output_widget = urwid.Text("ir-21\n")
-input_widget = urwid.Edit("~> ")
+input_widget = urwid.Edit(">> ")
 frame_widget = urwid.Frame(footer=input_widget, body=urwid.Filler(output_widget, valign='top'), focus_part='footer')
 
 
 def print(*args):
     date = datetime.datetime.utcnow()
     text = " ".join([str(arg) for arg in args]) + "\n"
-    with open("log-{:%d-%m-%y}.txt".format(date), "a") as log:
+    text = text.encode("utf-8", "ignore")
+    with open("logs/log-{:%d-%m-%y}.txt".format(date), "a") as log:
         log.write(text)
+
     output_widget.set_text(output_widget.text + text)
     cols, rows = loop.screen.get_cols_rows()
     while output_widget.rows((cols,)) > rows:
@@ -112,14 +116,17 @@ reconnect_delay = 0
 def check_online(loop, data):
     global reconnect_delay
     #print(dtstring(), "check online event")
-    if not connection.connected:
-        print(dtstring(), "disconnected from", connection.options.address)
-        print(dtstring(), "reconnecting...")
-        connection.auth_token.authenticate(config.username, config.password)
-        connection.connect()
-        reconnect_delay += 15
-    else:
-        reconnect_delay = 0
+    try:
+        if not connection.connected:
+            reconnect_delay += 15
+            print(dtstring(), "disconnected from", connection.options.address)
+            print(dtstring(), "reconnecting...")
+            connection.auth_token.authenticate(config.username, config.password)
+            connection.connect()
+        else:
+            reconnect_delay = 0
+    except Exception as e:
+        print(dtstring(), type(e).__name__ + ":", e)
     loop.set_alarm_in(60 + reconnect_delay, check_online)
 
 
@@ -132,7 +139,7 @@ def parse_commands(key):
         try:
             commands[cmd](txt)
         except Exception as e:
-            print(str(type(e)) + ": " + str(e))
+            print(type(e).__name__ + ": " + str(e))
 
 
 commands = {}
@@ -147,7 +154,7 @@ def run(txt):
     try:
         exec(txt)
     except Exception as e:
-        print(str(type(e)) + ": " + str(e))
+        print(type(e).__name__ + ": " + str(e))
 
 
 @command
@@ -155,7 +162,7 @@ def say(txt):
     try:
         send_chat(txt)
     except Exception as e:
-        print(type(e) + ": " + str(e))
+        print(type(e).__name__ + ": " + str(e))
 
 
 @command
