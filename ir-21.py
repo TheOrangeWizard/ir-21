@@ -23,7 +23,7 @@ frame_widget = urwid.Frame(footer=input_widget, body=urwid.Filler(output_widget,
 def print(*args):
     date = datetime.datetime.utcnow()
     text = " ".join([str(arg) for arg in args]) + "\n"
-    text = text.encode("utf-8", "ignore")
+    text = str(text.encode("utf-8", "ignore"))
     with open("logs/log-{:%d-%m-%y}.txt".format(date), "a") as log:
         log.write(text)
 
