@@ -22,11 +22,9 @@ frame_widget = urwid.Frame(footer=input_widget, body=urwid.Filler(output_widget,
 
 def print(*args):
     date = datetime.datetime.utcnow()
-    text = " ".join([str(arg) for arg in args]) + "\n"
-    text = str(text.encode("utf-8", "ignore"))
+    text = " ".join([str(arg).encode("latin-1", "ignore").decode("latin-1") for arg in args]) + "\n"
     with open("logs/log-{:%d-%m-%y}.txt".format(date), "a") as log:
         log.write(text)
-
     output_widget.set_text(output_widget.text + text)
     cols, rows = loop.screen.get_cols_rows()
     while output_widget.rows((cols,)) > rows:
