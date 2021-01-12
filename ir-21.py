@@ -33,6 +33,8 @@ def print(*args):
         loop.draw_screen()
     except AssertionError:
         pass
+    except UnicodeEncodeError as e:
+        print(dtstring(), type(e).__name__ + ":", e)
 
 
 def timestring():
@@ -170,7 +172,7 @@ def status(txt):
     print("server address:", connection.options.address, connection.options.port)
     print("connection active:", connection.connected)
     print("spawned:", connection.spawned)
-    print("reactor type:", type(connection.reactor))
+    print("reactor type:", type(connection.reactor).__name__)
 
 
 @command
