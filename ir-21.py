@@ -36,7 +36,7 @@ def print(*args):
     except UnicodeEncodeError as e:
         print(dtstring(), type(e).__name__ + ": adding details to log")
         with open("logs/log-{:%d-%m-%y}.txt".format(date), "a") as log:
-            log.write(dtstring() + " " + type(e).__name__ + ": " + e)
+            log.write(dtstring() + " " + type(e).__name__ + ": " + str(e))
 
 
 def timestring():
@@ -99,7 +99,7 @@ def parse_snitch(chat):
         if config.snitch_hook is not None:
             requests.post(config.snitch_hook, data={"content": text})
     except Exception as e:
-        print(dtstring(), "snitch error", type(e), e)
+        print(dtstring(), "snitch error", type(e), str(e))
 
 
 def send_chat(message):
