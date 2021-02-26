@@ -100,6 +100,9 @@ def parse_snitch(chat):
             requests.post(config.snitch_hook, data={"content": text})
     except Exception as e:
         print(dtstring(), "snitch error", type(e), e)
+        print(chat)
+        if config.snitch_hook is not None:
+            requests.post(config.snitch_hook, data={"content": chat})
 
 
 def send_chat(message):
@@ -129,7 +132,13 @@ def check_online(loop, data):
             reconnect_delay = 0
     except Exception as e:
         print(dtstring(), type(e).__name__ + ":", e)
-    loop.set_alarm_in(60 + reconnect_delay, check_online)
+    loop.set_alarm_in(15 + reconnect_delay, check_online)
+
+
+# TODO
+# listen to all incoming packets
+# periodically check time of last received packet
+# if time passed > threshold and connected=True, refresh connection/force disconnect/whatever
 
 
 def parse_commands(key):
@@ -175,6 +184,11 @@ def status(txt):
     print("connection active:", connection.connected)
     print("spawned:", connection.spawned)
     print("reactor type:", type(connection.reactor).__name__)
+
+
+@command
+def test(txt):
+    send_chat("/g SA-Info test")
 
 
 @command
