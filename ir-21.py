@@ -34,9 +34,7 @@ def print(*args):
     except AssertionError:
         pass
     except UnicodeEncodeError as e:
-        print(dtstring(), type(e).__name__ + ": adding details to log")
-        with open("logs/log-{:%d-%m-%y}.txt".format(date), "a") as log:
-            log.write(dtstring() + " " + type(e).__name__ + ": " + e)
+        print(dtstring(), type(e).__name__ + ":", e)
 
 
 def timestring():
