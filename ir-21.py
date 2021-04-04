@@ -240,7 +240,7 @@ def set_delay(txt):
 @command
 def blacklist(txt):
     with open("blacklist.txt", "a") as blacklist_f:
-        blacklist.write(txt + "\n")
+        blacklist_f.write(txt + "\n")
 
 
 @command
