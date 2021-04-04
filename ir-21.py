@@ -97,8 +97,10 @@ def parse_snitch(chat):
         coords = [int(i) for i in split_chat[3][3:][:-1].split(" ")]
         text = "**" + account + "** " + action + " at **" + snitch_name + "** `" + str(coords) + "`"
         print(dtstring(), text)
-        if config.snitch_hook is not None:
-            requests.post(config.snitch_hook, data={"content": text})
+        with open("blacklist.txt", "r") as blacklist_f:
+            backlist = [line.strip("\n") for line in blacklist_f.readlines()]
+            if snitch_name not in blacklist and config.snitch_hook is not None:
+                requests.post(config.snitch_hook, data={"content": text})
     except Exception as e:
         print(dtstring(), "snitch error", type(e), str(e))
 
@@ -233,6 +235,12 @@ def set_delay(txt):
         print("reconnect delay set to", txt)
     except ValueError:
         print("value error")
+
+
+@command
+def blacklist(txt):
+    with open("blacklist.txt", "a") as blacklist_f:
+        blacklist.write(txt + "\n")
 
 
 @command
