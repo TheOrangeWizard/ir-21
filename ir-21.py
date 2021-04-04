@@ -34,7 +34,7 @@ def print(*args):
     except AssertionError:
         pass
     except UnicodeEncodeError as e:
-        print(dtstring(), type(e).__name__ + ": adding details to log")
+        # print(dtstring(), type(e).__name__ + ": adding details to log")
         with open("logs/log-{:%d-%m-%y}.txt".format(date), "a") as log:
             log.write(dtstring() + " " + type(e).__name__ + ": " + str(e))
 
@@ -112,24 +112,24 @@ def send_chat(message):
 
 auth_token = authentication.AuthenticationToken()
 connection = Connection(config.host, config.port, auth_token=auth_token)
-reconnect_delay = 0
+reconnect_delay = 60
+paused = False
 
 
 def check_online(loop, data):
-    global reconnect_delay
-    #print(dtstring(), "check online event")
+    global reconnect_delay, paused
+    # print(dtstring(), "check online event")
     try:
-        if not connection.connected:
-            reconnect_delay += 15
+        if not connection.connected and not paused:
             print(dtstring(), "disconnected from", connection.options.address)
             print(dtstring(), "reconnecting...")
             connection.auth_token.authenticate(config.username, config.password)
             connection.connect()
         else:
-            reconnect_delay = 0
+            pass
     except Exception as e:
         print(dtstring(), type(e).__name__ + ":", e)
-    loop.set_alarm_in(60 + reconnect_delay, check_online)
+    loop.set_alarm_in(reconnect_delay, check_online)
 
 
 def parse_commands(key):
@@ -140,6 +140,8 @@ def parse_commands(key):
         txt = " ".join(i.split(" ")[1:])
         try:
             commands[cmd](txt)
+        except KeyError:
+            print("command", cmd, "not found")
         except Exception as e:
             print(type(e).__name__ + ": " + str(e))
 
@@ -149,6 +151,15 @@ commands = {}
 
 def command(cmd):
     commands[cmd.__name__] = cmd
+
+
+@command
+def help(txt):
+    cmds = "valid commands: "
+    for cmd in commands.keys():
+        cmds += "\n"
+        cmds += cmd
+    print(cmds)
 
 
 @command
@@ -190,6 +201,17 @@ def players(txt):
 
 
 @command
+def pause(txt):
+    global paused
+    if paused:
+        paused = False
+        print("unpaused auto reconnect")
+    else:
+        paused = True
+        print("paused auto reconnect")
+
+
+@command
 def login(txt):
     connection.connect()
 
@@ -200,6 +222,16 @@ def logout(txt):
         connection.disconnect()
     else:
         send_chat("/logout")
+
+
+@command
+def set_delay(txt):
+    try:
+        global reconnect_delay
+        reconnect_delay = int(txt)
+        print("reconnect delay set to", txt)
+    except ValueError:
+        print("value error")
 
 
 @command
