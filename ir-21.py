@@ -22,8 +22,8 @@ frame_widget = urwid.Frame(footer=input_widget, body=urwid.Filler(output_widget,
 
 def print(*args):
     date = datetime.datetime.utcnow()
-    text = " ".join([str(arg).encode("latin-1", "ignore").decode("latin-1") for arg in args]) + "\n"
-    with open("logs/log-{:%d-%m-%y}.txt".format(date), "a") as log:
+    text = " ".join([str(arg).encode("latin-1", "ignore").decode() for arg in args]) + "\n"
+    with open("logs/log-{:%y-%m-%d}.txt".format(date), "a") as log:
         log.write(text)
     output_widget.set_text(output_widget.text + text)
     cols, rows = loop.screen.get_cols_rows()
@@ -34,9 +34,10 @@ def print(*args):
     except AssertionError:
         pass
     except UnicodeEncodeError as e:
+        pass
         # print(dtstring(), type(e).__name__ + ": adding details to log")
-        with open("logs/log-{:%d-%m-%y}.txt".format(date), "a") as log:
-            log.write(dtstring() + " " + type(e).__name__ + ": " + str(e))
+        # with open("logs/log-{:%d-%m-%y}.txt".format(date), "a") as log:
+            # log.write(dtstring() + " " + type(e).__name__ + ": " + str(e))
 
 
 def timestring():
