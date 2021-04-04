@@ -239,8 +239,14 @@ def set_delay(txt):
 
 @command
 def blacklist(txt):
-    with open("blacklist.txt", "a") as blacklist_f:
-        blacklist_f.write(txt + "\n")
+    if txt == "":
+        with open("blacklist.txt", "r") as blacklist_f:
+            print("snitch relay blacklist:")
+            print("".join(blacklist_f.readlines()))
+    else:
+        with open("blacklist.txt", "a") as blacklist_f:
+            blacklist_f.write(txt + "\n")
+            print(txt, "added to relay blacklist")
 
 
 @command
