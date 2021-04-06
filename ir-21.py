@@ -98,7 +98,7 @@ def parse_snitch(chat):
         text = "**" + account + "** " + action + " at **" + snitch_name + "** `" + str(coords) + "`"
         print(dtstring(), text)
         with open("blacklist.txt", "r") as blacklist_f:
-            backlist = [line.strip("\n") for line in blacklist_f.readlines()]
+            blacklist = [line.strip("\n") for line in blacklist_f.readlines()]
             if snitch_name not in blacklist and config.snitch_hook is not None:
                 requests.post(config.snitch_hook, data={"content": text})
     except Exception as e:
