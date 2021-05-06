@@ -123,9 +123,10 @@ def check_online(loop, data):
     global reconnect_delay, paused
     # print(dtstring(), "check online event")
     try:
-        if not connection.connected and not paused:
+        if (not connection.connected or not connection.spawned) and not paused:
             print(dtstring(), "disconnected from", connection.options.address)
             print(dtstring(), "reconnecting...")
+            connection.disconnect()
             connection.auth_token.authenticate(config.username, config.password)
             connection.connect()
         else:
